@@ -1,0 +1,41 @@
+"use client"
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import Navbar from './Navbar';
+import Footer from './Footer';
+export default function GalleryClient() {
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
+  useEffect(() => { fetch('/api/gallery').then(r => r.json()).then(d => setPhotos(d.photos || [])).catch(() => {}); }, []);
+  return (
+    <main className="min-h-screen bg-navy">
+      <Navbar />
+      <div className="pt-24 pb-20 px-4 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <Link href="/" className="flex items-center gap-2 text-gray-400 hover:text-gold transition text-sm mb-6"><ArrowLeft size={16} /> Back to home</Link>
+          <h1 className="font-display text-5xl font-semibold text-white mb-4">Royal Gallery</h1>
+          <p className="text-gray-400">Life at Maine Coon Royale — our kittens, our home, our families.</p>
+        </div>
+        {photos.length === 0 ? (
+          <div className="text-center py-20 text-gray-500"><p className="text-5xl mb-4">🐱</p><p>Gallery coming soon!</p></div>
+        ) : (
+          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+            {photos.map(photo => (
+              <div key={photo.id} onClick={() => setSelected(photo)} className="relative rounded-xl overflow-hidden cursor-pointer break-inside-avoid group border border-gold/10 hover:border-gold/40 transition">
+                <Image src={photo.image_url} alt={photo.title || ''} width={400} height={300} className="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <Footer />
+      {selected && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelected(null)}>
+          <Image src={selected.image_url} alt={selected.title || ''} width={900} height={600} className="rounded-2xl object-contain max-h-[85vh]" />
+        </div>
+      )}
+    </main>
+  );
+}
